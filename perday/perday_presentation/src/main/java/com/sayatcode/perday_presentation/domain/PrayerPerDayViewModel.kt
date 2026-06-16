@@ -97,17 +97,17 @@ class PrayerPerDayViewModel @Inject constructor(
 
     @OptIn(ExperimentalTime::class)
     private fun refreshForTm(date: LocalDate? = null) {
-        val targetDate = date ?: LocalDate.now()
+        val targetDate = LocalDate.now()
+        val info = getCurrentPrayerInfo(
+            PrayerInput(37.9601, 58.3261, targetDate)
+        )
+        val sunriseMillis = info.sunrise.toEpochMilliseconds()
+        val sunsetMillis = info.maghrib.toEpochMilliseconds()
         if (date == null) {
             viewModelScope.launch {
                 val result = prayerRepo.getForToday()
                 result?.let {
                     val hijriD = LocalDate.now().toHijriString()
-                    val info = getCurrentPrayerInfo(
-                        PrayerInput(37.9601, 58.3261, targetDate)
-                    )
-                    val sunriseMillis = info.sunrise.toEpochMilliseconds()
-                    val sunsetMillis = info.maghrib.toEpochMilliseconds()
                     prayerState = prayerState.copy(
                         date = LocalDate.now(),
                         hijriDate = LocalDate.now().toHijri(),
@@ -133,16 +133,6 @@ class PrayerPerDayViewModel @Inject constructor(
                 val result = prayerRepo.getForDate(date.dayOfMonth,
                     date.monthValue)
                 result?.let {
-                    val formatter = DateTimeFormatter.ofPattern("HH:mm")
-                    val sunriseTime = LocalTime.parse(result.sunrise, formatter)
-                    val sunsetTime = LocalTime.parse(result.maghrib, formatter)
-
-                    val sunriseMillis = date.atTime(sunriseTime)
-                        .atZone(ZoneId.of("Asia/Ashgabat"))
-                        .toInstant().toEpochMilli()
-                    val sunsetMillis = date.atTime(sunsetTime)
-                        .atZone(ZoneId.of("Asia/Ashgabat"))
-                        .toInstant().toEpochMilli()
                     prayerState = prayerState.copy(
                         date = date,
                         hijriDate = date.toHijri(),
@@ -155,11 +145,32 @@ class PrayerPerDayViewModel @Inject constructor(
                         sunsetMillis = sunsetMillis,
                         sunriseMillis = sunriseMillis,
                         sunProgress = calculateSunProgress(
-                            fajrMillis = 0L,
+                            fajrMillis = info.fajr.toEpochMilliseconds(),
                             sunriseMillis = sunriseMillis,
                             sunsetMillis = sunsetMillis,
-                            ishaMillis = 0L
-                        )
+                            ishaMillis = info.isha.toEpochMilliseconds()
+                        ),
+                        prayerAngles = listOf(
+                            timeToAngle(
+                                timeMillis = formatStringToTime(result.fajr,date),
+                                sunriseMillis = sunriseMillis,
+                                sunsetMillis = sunsetMillis),
+                        timeToAngle(
+                            timeMillis = formatStringToTime(result.dhuhr,date),
+                            sunriseMillis = sunriseMillis,
+                            sunsetMillis = sunsetMillis),
+                            timeToAngle(
+                                timeMillis = formatStringToTime(result.asr,date),
+                                sunriseMillis = sunriseMillis,
+                                sunsetMillis = sunsetMillis),
+                            timeToAngle(
+                                timeMillis = formatStringToTime(result.maghrib,date),
+                                sunriseMillis = sunriseMillis,
+                                sunsetMillis = sunsetMillis),
+                            timeToAngle(
+                                timeMillis = formatStringToTime(result.isha,date),
+                                sunriseMillis = sunriseMillis,
+                                sunsetMillis = sunsetMillis),)
                     )
                 }
             }
@@ -192,5 +203,20 @@ class PrayerPerDayViewModel @Inject constructor(
             now > sunsetMillis -> 1f
             else -> (now - sunriseMillis).toFloat() / (sunsetMillis - sunriseMillis).toFloat()
         }
+    }
+
+    fun timeToAngle(timeMillis: Long, sunriseMillis: Long, sunsetMillis: Long): Float {
+        val progress = (timeMillis - sunriseMillis).toFloat() / (sunsetMillis - sunriseMillis)
+        return progress.coerceIn(0f, 1f) * 180f
+    }
+    private fun formatStringToTime(value: String,date: LocalDate): Long{
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+        val sunriseTime = LocalTime.parse(value)
+
+            val sunriseMillis = date.atTime(sunriseTime)
+                .atZone(ZoneId.of("Asia/Ashgabat"))
+                .toInstant().toEpochMilli()
+
+        return sunriseMillis
     }
 }

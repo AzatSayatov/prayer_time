@@ -22,7 +22,8 @@ import kotlin.math.sin
 
 @Composable
 fun SunArc(
-    progress: Float, // 0f..1f
+    progress: Float,
+    prayerAngles: List<Float> = emptyList(), // углы намазов в градусах (0..180)
     modifier: Modifier = Modifier
 ) {
     val animatedProgress by animateFloatAsState(
@@ -31,18 +32,23 @@ fun SunArc(
         label = "sun_progress"
     )
 
-    Canvas(modifier = modifier
-        .fillMaxWidth()
-        .height(120.dp)
-        .padding(horizontal = 24.dp)
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .padding(horizontal = 24.dp)
     ) {
         val strokeWidth = 2.dp.toPx()
         val arcRect = Rect(
             offset = Offset(0f, 0f),
             size = Size(size.width, size.height * 2)
         )
+        val cx = arcRect.center.x
+        val cy = arcRect.center.y
+        val rx = arcRect.width / 2
+        val ry = arcRect.height / 2
 
-        // Дуга (пунктир)
+        // Дуга
         drawArc(
             color = Color.White.copy(alpha = 0.4f),
             startAngle = 180f,
@@ -50,30 +56,53 @@ fun SunArc(
             useCenter = false,
             topLeft = arcRect.topLeft,
             size = arcRect.size,
-            style = Stroke(
-                width = strokeWidth,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f))
-            )
+            style = Stroke(width = strokeWidth)
         )
 
-        // Позиция солнца на дуге
-        val angle = 180f + (animatedProgress * 180f) // 180..360
-        val angleRad = Math.toRadians(angle.toDouble())
-        val cx = arcRect.center.x
-        val cy = arcRect.center.y
-        val rx = arcRect.width / 2
-        val ry = arcRect.height / 2
+        // Линии от точки на дуге до нижнего центра
+        val bottomCenter = Offset(cx, cy) // центр эллипса = нижний центр дуги
 
-        val sunX = cx + (rx * cos(angleRad)).toFloat()
-        val sunY = cy + (ry * sin(angleRad)).toFloat()
+        // Обычные засечки каждые 15 градусов
+        for (deg in 0..180 step 15) {
+            val rad = Math.toRadians((180.0 + deg))
+            val pointOnArc = Offset(
+                x = cx + (rx * cos(rad)).toFloat(),
+                y = cy + (ry * sin(rad)).toFloat()
+            )
+            val isPrayer = prayerAngles.any { kotlin.math.abs(it - deg) < 5f }
+            drawLine(
+                color = if (isPrayer) Color.White else Color.White.copy(alpha = 0.3f),
+                start = pointOnArc,
+                end = bottomCenter,
+                strokeWidth = if (isPrayer) 2.5.dp.toPx() else 1.dp.toPx()
+            )
+        }
 
-        // Свечение
+        // Линии намазов (если не попали в step 15)
+        prayerAngles.forEach { deg ->
+            val rad = Math.toRadians((180.0 + deg))
+            val pointOnArc = Offset(
+                x = cx + (rx * cos(rad)).toFloat(),
+                y = cy + (ry * sin(rad)).toFloat()
+            )
+            drawLine(
+                color = Color.White,
+                start = pointOnArc,
+                end = bottomCenter,
+                strokeWidth = 2.5.dp.toPx()
+            )
+        }
+
+        // Солнце
+        val sunAngle = Math.toRadians((180.0 + animatedProgress * 180.0))
+        val sunX = cx + (rx * cos(sunAngle)).toFloat()
+        val sunY = cy + (ry * sin(sunAngle)).toFloat()
+
         drawCircle(
             color = Color(0xFFFFD700).copy(alpha = 0.3f),
             radius = 20.dp.toPx(),
             center = Offset(sunX, sunY)
         )
-        // Солнце
         drawCircle(
             color = Color(0xFFFFD700),
             radius = 10.dp.toPx(),

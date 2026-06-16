@@ -18,4 +18,5 @@ data class PrayerInputState(
     val sunProgress: Float = 0f,
     val sunriseMillis: Long = 0L,
     val sunsetMillis: Long = 0L,
+    val prayerAngles: List<Float> = emptyList()
 )

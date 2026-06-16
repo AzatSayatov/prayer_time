@@ -6,5 +6,5 @@ import cafe.adriel.lyricist.LyricistStrings
 @Keep
 data class Strings(
     val january: String,
-    val hijriString:(day:Int,month:Int,year:Int) -> String
+    val hijriString:(day:Int,month:Int,year:Int) -> String,
 )

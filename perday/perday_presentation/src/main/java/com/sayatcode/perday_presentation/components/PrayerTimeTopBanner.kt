@@ -22,7 +22,8 @@ import com.sayatcode.core.R
 
 @Composable
 fun PrayerTimeTopBanner(
-    sunProgress : Float = 0.5f
+    sunProgress : Float = 0.5f,
+    prayerAngles: List<Float> = emptyList()
 ){
     Box(modifier = Modifier.fillMaxWidth()
         .clip(
@@ -74,7 +75,8 @@ fun PrayerTimeTopBanner(
             progress = sunProgress,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 8.dp)
+                .padding(bottom = 8.dp),
+            prayerAngles = prayerAngles
         )
 
     }

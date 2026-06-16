@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Prayer.Base" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:statusBarColor">#FF2E71F5</item>
+    </style>
+    <style name="Theme.Prayer" parent="Theme.Prayer.Base">
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
