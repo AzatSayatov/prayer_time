@@ -1,5 +1,7 @@
 package com.sayatcode.core.database.entity
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.sayatcode.core.model.DailyPrayerTimes
@@ -16,6 +18,7 @@ data class DailyPrayerTimesEntity(
 
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun DailyPrayerTimesEntity.toDomain(): DailyPrayerTimes {
     val formatter = DateTimeFormatter.ofPattern("HH:mm")
     val fajrTime = LocalTime.parse(fajr, formatter)
