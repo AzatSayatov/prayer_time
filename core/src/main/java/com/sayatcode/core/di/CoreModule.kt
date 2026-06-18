@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.room.Room
+import com.sayatcode.calendar_data.local.dao.PrayerCompletionDao
+import com.sayatcode.core.database.MIGRATION_1_2
 import com.sayatcode.core.database.PrayerDatabase
 import com.sayatcode.core.database.dao.PrayerTimesDao
 import com.sayatcode.core.preferenes.Preferences
@@ -40,7 +42,14 @@ object CoreModule {
             app,
             PrayerDatabase::class.java,
             "prayer_db"
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2)
+            .build()
+    }
+    @Provides
+    @Singleton
+    fun providePrayerCompletionDao(database: PrayerDatabase): PrayerCompletionDao {
+        return database.prayerCompletionDao()
     }
     @Provides
     @Singleton

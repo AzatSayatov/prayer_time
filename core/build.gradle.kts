@@ -17,7 +17,7 @@ dependencies{
 //    ksp(Lyritics.LYRICIST_PROCESSOR)
 //    implementation("com.google.code.gson:gson:2.10.1")
 //    implementation(libs.kotlinx.serialization.json)
-//        implementation(project(Modules.core))
+        implementation(project(Modules.calendarData))
 
 }
 

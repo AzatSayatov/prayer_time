@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.sayatcode.calendar_presentaion.ui.CalendarScreen
 import com.sayatcode.core_ui.ProvideStrings
 import com.sayatcode.core_ui.rememberStrings
 import com.sayatcode.perday_presentation.domain.PrayerPerDayViewModel
@@ -63,7 +64,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier,
             CircularProgressIndicator()
         }
     }else {
-        PrayerTimeOfDayScreen()
+        CalendarScreen()
     }
 }
 
